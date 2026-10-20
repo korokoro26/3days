@@ -33,16 +33,13 @@
       touch-action: pan-y;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
     }
-    /* テキスト入力領域はテキスト編集を許可 */
     input, textarea {
       -webkit-user-select: auto;
       user-select: auto;
     }
-    /* タップ時の青いハイライトを無効化 */
     * {
       -webkit-tap-highlight-color: transparent;
     }
-    /* スムーズスクロール */
     .ios-scroll {
       -webkit-overflow-scrolling: touch;
     }
@@ -52,7 +49,7 @@
 
 <div id="app" class="flex flex-col h-full max-w-2xl mx-auto w-full min-h-screen bg-white shadow-xl relative pb-20">
 
-  <!-- ヘッダー（Apple HIG基準） -->
+  <!-- ヘッダー -->
   <header class="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between">
     <div class="flex items-center space-x-2">
       <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
@@ -63,7 +60,7 @@
       </div>
     </div>
     <div class="flex items-center space-x-2">
-      <!-- PDF出力ボタン (44px以上のタップ領域) -->
+      <!-- PDF出力ボタン -->
       <button @click="exportToPdf" :disabled="entries.length === 0 || isExportingPdf" 
         class="h-11 px-3 bg-slate-50 border border-slate-200 active:bg-slate-100 rounded-xl text-xs font-medium text-slate-700 flex items-center space-x-1.5 transition-colors disabled:opacity-40 disabled:pointer-events-none" 
         title="PDF出力">
@@ -81,7 +78,7 @@
   <!-- メインコンテンツ -->
   <main class="flex-1 overflow-y-auto ios-scroll p-4 md:p-6 space-y-6">
 
-    <!-- 今日の入力エリア (余計な説明文・プレースホルダーのサンプル文を排除したシンプルUI) -->
+    <!-- 入力フォーム -->
     <section class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 shadow-sm">
       <div class="flex items-center justify-between mb-4">
         <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">今日</span>
@@ -93,7 +90,7 @@
         <div>
           <label class="block text-xs font-medium text-slate-600 mb-1.5 flex items-center space-x-1.5">
             <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">1</span>
-            <span>行動 1</span>
+            <span>事実</span>
           </label>
           <input type="text" v-model="form.line1"
             class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
@@ -103,7 +100,7 @@
         <div>
           <label class="block text-xs font-medium text-slate-600 mb-1.5 flex items-center space-x-1.5">
             <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">2</span>
-            <span>行動 2</span>
+            <span>抽象化</span>
           </label>
           <input type="text" v-model="form.line2"
             class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
@@ -113,9 +110,8 @@
         <div>
           <label class="block text-xs font-medium text-slate-600 mb-1.5 flex items-center space-x-1.5">
             <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">3</span>
-            <span>行動 3</span>
+            <span>転用</span>
           </label>
-          <!-- Shift + Enter で即時保存する誤操作防止ハンドラ -->
           <input type="text" v-model="form.line3" @keydown.enter="handleEnterKey"
             class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
         </div>
@@ -133,7 +129,7 @@
       </div>
     </section>
 
-    <!-- 蓄積一覧 (タイムライン) & PDF書き出し対象エリア -->
+    <!-- 蓄積一覧 & PDF書き出し対象エリア -->
     <section class="space-y-3">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">記録</h2>
@@ -144,7 +140,7 @@
         記録はありません
       </div>
 
-      <!-- タイムラインのカード群 -->
+      <!-- カード一覧 -->
       <div id="pdf-export-area" class="space-y-4">
         <div v-for="item in entries" :key="item.id" class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 shadow-sm space-y-3 relative">
           
@@ -153,25 +149,18 @@
               <i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-600"></i>
               <span>{{ item.date }}</span>
             </span>
-            <!-- 操作ボタン群 (PDF出力時は除外) -->
+            <!-- 操作ボタン群 -->
             <div class="flex items-center space-x-1 pdf-exclude">
-              <!-- AIメタ認知分析ボタン -->
-              <button @click="requestAiFeedback(item)" class="h-9 px-2.5 text-xs text-indigo-600 bg-indigo-50 active:bg-indigo-100 rounded-xl flex items-center space-x-1 transition-colors" title="分析">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                <span>分析</span>
-              </button>
-              <!-- 編集ボタン (CRUD: Update) -->
               <button @click="startEdit(item)" class="w-9 h-9 flex items-center justify-center text-slate-400 active:text-slate-600 rounded-xl" title="編集">
                 <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
               </button>
-              <!-- 削除ボタン (CRUD: Delete) -->
               <button @click="confirmDelete(item.id)" class="w-9 h-9 flex items-center justify-center text-rose-400 active:text-rose-600 rounded-xl" title="削除">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               </button>
             </div>
           </div>
 
-          <!-- 3つの行動表示 -->
+          <!-- 3行表示 -->
           <div class="text-xs space-y-2 leading-relaxed text-slate-800">
             <div class="flex items-start space-x-2">
               <span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold text-[10px] shrink-0 mt-0.5">1</span>
@@ -186,22 +175,13 @@
               <p class="flex-1">{{ item.line3 }}</p>
             </div>
           </div>
-
-          <!-- AIメタ認知フィードバック表示 -->
-          <div v-if="item.aiFeedback" class="mt-3 bg-indigo-50/60 border border-indigo-100 rounded-xl p-3 text-xs text-indigo-950">
-            <div class="flex items-center space-x-1.5 text-indigo-600 font-semibold mb-1.5">
-              <i data-lucide="bot" class="w-3.5 h-3.5"></i>
-              <span>分析結果</span>
-            </div>
-            <p class="leading-relaxed whitespace-pre-wrap text-slate-700">{{ item.aiFeedback }}</p>
-          </div>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- 設定モーダル（外側タップで閉じる） -->
+  <!-- 設定モーダル（通知設定のみ） -->
   <div v-if="openSettingsModal" @click.self="openSettingsModal = false" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl space-y-5">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -209,12 +189,6 @@
         <button @click="openSettingsModal = false" class="w-10 h-10 flex items-center justify-center text-slate-400 active:text-slate-600 rounded-full" aria-label="閉じる">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
-      </div>
-
-      <!-- Gemini API キー入力 -->
-      <div class="space-y-2">
-        <label class="block text-xs font-semibold text-slate-600">Gemini API キー</label>
-        <input type="password" v-model="settings.apiKey" placeholder="AIzaSy..." class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
       </div>
 
       <!-- 通知時間設定 -->
@@ -228,15 +202,6 @@
         </div>
       </div>
 
-      <!-- モデル選択（指定モデルのみ） -->
-      <div class="space-y-2">
-        <label class="block text-xs font-semibold text-slate-600">AI モデル</label>
-        <select v-model="settings.selectedModel" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview</option>
-          <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
-        </select>
-      </div>
-
       <div class="pt-2">
         <button @click="saveSettings" class="w-full h-11 bg-indigo-600 text-white rounded-xl text-sm font-medium active:bg-indigo-700 transition-colors">
           保存
@@ -245,18 +210,14 @@
     </div>
   </div>
 
-  <!-- バージョン表示 (視認性低く配置) -->
   <footer class="absolute bottom-2 inset-x-0 text-center pointer-events-none">
-    <span class="text-[9px] text-slate-300 font-mono tracking-widest">v1.1.2</span>
+    <span class="text-[9px] text-slate-300 font-mono tracking-widest">v1.2.0</span>
   </footer>
 
 </div>
 
 <script>
-/**
- * 1. PWA Single File 用 Web App Manifest 動的生成
- * ホーム画面追加時にスタンドアロン表示するための設定
- */
+// PWA Manifest
 const manifestData = {
   name: "三行日記",
   short_name: "三行日記",
@@ -276,15 +237,11 @@ manifestLink.rel = 'manifest';
 manifestLink.href = URL.createObjectURL(manifestBlob);
 document.head.appendChild(manifestLink);
 
-/**
- * 2. IndexedDB ラッパー
- * ページ再読み込み時でもデータが消えないようブラウザDBに保存
- */
+// IndexedDB
 const DB_NAME = '3LinesDiaryDB_v2';
 const DB_VERSION = 1;
 let dbInstance = null;
 
-// IndexedDBの初期化
 function initDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -305,7 +262,6 @@ function initDB() {
   });
 }
 
-// データの追加・更新
 function dbPut(storeName, data) {
   return new Promise((resolve, reject) => {
     const tx = dbInstance.transaction(storeName, 'readwrite');
@@ -316,7 +272,6 @@ function dbPut(storeName, data) {
   });
 }
 
-// 全件取得
 function dbGetAll(storeName) {
   return new Promise((resolve, reject) => {
     const tx = dbInstance.transaction(storeName, 'readonly');
@@ -327,7 +282,6 @@ function dbGetAll(storeName) {
   });
 }
 
-// データ削除
 function dbDelete(storeName, key) {
   return new Promise((resolve, reject) => {
     const tx = dbInstance.transaction(storeName, 'readwrite');
@@ -338,7 +292,6 @@ function dbDelete(storeName, key) {
   });
 }
 
-// 単一キー取得
 function dbGet(storeName, key) {
   return new Promise((resolve, reject) => {
     const tx = dbInstance.transaction(storeName, 'readonly');
@@ -349,9 +302,7 @@ function dbGet(storeName, key) {
   });
 }
 
-/**
- * 3. Vue 3 アプリケーション本体
- */
+// Vue App
 const { createApp, ref, onMounted, nextTick } = Vue;
 
 createApp({
@@ -362,21 +313,16 @@ createApp({
     const isExportingPdf = ref(false);
     const todayDateStr = new Date().toISOString().split('T')[0];
 
-    // 入力フォームの状態
     const form = ref({
       line1: '',
       line2: '',
       line3: ''
     });
 
-    // 設定の状態（APIキーはユーザー入力から取得して保持）
     const settings = ref({
-      apiKey: '',
-      notifyTime: '21:00',
-      selectedModel: 'gemini-3.5-flash-lite'
+      notifyTime: '21:00'
     });
 
-    // Lucideアイコンの再描画処理
     const refreshIcons = () => {
       nextTick(() => {
         if (window.lucide) {
@@ -385,7 +331,6 @@ createApp({
       });
     };
 
-    // コンポーネントマウント時の初期化
     onMounted(async () => {
       try {
         await initDB();
@@ -401,14 +346,12 @@ createApp({
       refreshIcons();
     });
 
-    // 日記エントリーの読み込みとソート
     const loadEntries = async () => {
       const data = await dbGetAll('entries');
       entries.value = data.sort((a, b) => new Date(b.date) - new Date(a.date));
       refreshIcons();
     };
 
-    // Shift + Enter による誤送信防止ショートカット
     const handleEnterKey = (e) => {
       if (e.shiftKey) {
         e.preventDefault();
@@ -416,7 +359,6 @@ createApp({
       }
     };
 
-    // エントリーの保存 (Create / Update)
     const saveEntry = async () => {
       if (!form.value.line1.trim() || !form.value.line2.trim() || !form.value.line3.trim()) {
         alert('3つの項目をすべて入力してください。');
@@ -432,7 +374,6 @@ createApp({
         line1: form.value.line1.trim(),
         line2: form.value.line2.trim(),
         line3: form.value.line3.trim(),
-        aiFeedback: existing ? existing.aiFeedback : null,
         updatedAt: new Date().toISOString()
       };
 
@@ -446,7 +387,6 @@ createApp({
       }
     };
 
-    // 編集モード開始
     const startEdit = (item) => {
       editingId.value = item.id;
       form.value = {
@@ -457,13 +397,11 @@ createApp({
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // 編集キャンセル
     const cancelEdit = () => {
       editingId.value = null;
       form.value = { line1: '', line2: '', line3: '' };
     };
 
-    // 削除処理 (CRUD: Delete)
     const confirmDelete = async (id) => {
       if (confirm('削除しますか？')) {
         try {
@@ -476,7 +414,6 @@ createApp({
       }
     };
 
-    // 設定情報のIndexedDB保存
     const saveSettings = async () => {
       try {
         await dbPut('settings', { key: 'app_config', data: { ...settings.value } });
@@ -486,7 +423,6 @@ createApp({
       }
     };
 
-    // 通知権限のリクエスト
     const requestNotificationPermission = () => {
       if (!("Notification" in window)) {
         alert("ブラウザが通知に対応していません。");
@@ -504,7 +440,6 @@ createApp({
       });
     };
 
-    // 定期通知スケジューラー
     const startNotificationScheduler = () => {
       setInterval(() => {
         if (Notification.permission !== "granted") return;
@@ -519,53 +454,6 @@ createApp({
       }, 30000);
     };
 
-    // Gemini APIによるメタ認知分析リクエスト
-    const requestAiFeedback = async (item) => {
-      // ユーザー設定のAPIキーを検証
-      const currentApiKey = settings.value.apiKey?.trim();
-      if (!currentApiKey) {
-        alert('設定からGemini APIキーを入力してください。');
-        openSettingsModal.value = true;
-        return;
-      }
-
-      const prompt = `以下の3つの行動記録を分析し、メタ認知を促す簡潔なフィードバック（100〜150文字程度）を提供してください。\n\n1: ${item.line1}\n2: ${item.line2}\n3: ${item.line3}`;
-      
-      const targetModel = settings.value.selectedModel;
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${currentApiKey}`;
-
-      try {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: prompt }]
-            }]
-          })
-        });
-
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error?.message || `通信エラー (${res.status})`);
-        }
-
-        const data = await res.json();
-        const feedbackText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (feedbackText) {
-          item.aiFeedback = feedbackText;
-          await dbPut('entries', JSON.parse(JSON.stringify(item)));
-          refreshIcons();
-        } else {
-          throw new Error('応答を取得できませんでした。');
-        }
-      } catch (err) {
-        alert('通信エラー:\n' + err.message);
-      }
-    };
-
-    // PDF出力処理
     const exportToPdf = () => {
       const element = document.getElementById('pdf-export-area');
       if (!element || entries.value.length === 0) return;
@@ -578,7 +466,7 @@ createApp({
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
           scale: 2, 
-          useCORS: true,
+          useCORS: true, 
           ignoreElements: (el) => el.classList.contains('pdf-exclude')
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -607,7 +495,6 @@ createApp({
       confirmDelete,
       saveSettings,
       requestNotificationPermission,
-      requestAiFeedback,
       exportToPdf
     };
   }
